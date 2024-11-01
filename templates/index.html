@@ -1,0 +1,51 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Art Generator</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ASCII Art Generator</h1>
+        
+        {{if .Error}}
+        <div class="error">
+            {{.Error}}
+        </div>
+        {{end}}
+
+        <form action="ascii-art" method="POST">
+            <div class="form-group">
+                <label for="text">Enter Text:</label>
+                <textarea 
+                    name="text" 
+                    id="text" 
+                    required
+                    placeholder="Enter text to convert..."
+                >{{.Text}}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="banner">Select Banner Style:</label>
+                <select name="banner" id="banner" required>
+                    <option value="standard" {{if eq .Banner "standard"}}selected{{end}}>Standard</option>
+                    <option value="shadow" {{if eq .Banner "shadow"}}selected{{end}}>Shadow</option>
+                    <option value="thinkertoy" {{if eq .Banner "thinkertoy"}}selected{{end}}>Thinkertoy</option>
+                </select>
+            </div>
+
+            <button type="submit">Generate ASCII Art</button>
+        </form>
+
+        {{if .Result}}
+        <div class="result">
+            <h2>Result:</h2>
+            <pre>{{.Result}}</pre>
+        </div>
+        {{end}}
+    </div>
+</body>
+</html>
