@@ -18,12 +18,12 @@ type AsciiPage struct {
 func main() {
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/ascii-art", homeHandler)
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	log.Println("Listening and serving on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-// homeHandler() handlers GET and POST request to "/" and "/ascii-art"
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("\n\n=== Basic Request Info ===\n")
 	fmt.Printf("Method: %s\n", r.Method)
@@ -47,39 +47,44 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	p := &AsciiPage{}
 	switch r.Method {
 	case "GET":
-		w.WriteHeader(http.StatusOK) // 200
-		tmpl.Execute(w, p)
-
+		handleGet(w, tmpl, p)
 	case "POST":
-		if err := r.ParseForm(); err != nil {
-			http.Error(w, "Bad request", http.StatusBadRequest) // 400
-			return
-		}
-		text := r.Form.Get("text")
-		banner := r.Form.Get("banner")
-		if text == "" {
-			p.Error = "Text input cannot be empty"
-			tmpl.Execute(w, p)
-			return
-		}
-
-		art, err := generator.GenArt(text, banner)
-		if err != nil {
-			p.Error = "Failed to generate ASCII art: " + err.Error()
-			tmpl.Execute(w, p)
-			return
-		}
-
-		// Populate the Page struct with form data and generated art
-		p.Text = text
-		p.Banner = banner
-		p.Result = art
-
-		w.WriteHeader(http.StatusOK) // 200
-		tmpl.Execute(w, p)
+		handlePost(w, r, tmpl, p)
 	default:
-		// Handle other methods
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed) // 405
 	}
+}
 
+func handleGet(w http.ResponseWriter, tmpl *template.Template, p *AsciiPage) {
+	w.WriteHeader(http.StatusOK) // 200
+	tmpl.Execute(w, p)
+}
+
+func handlePost(w http.ResponseWriter, r *http.Request, tmpl *template.Template, p *AsciiPage) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest) // 400
+		return
+	}
+	text := r.Form.Get("text")
+	banner := r.Form.Get("banner")
+	if text == "" {
+		p.Error = "Text input cannot be empty"
+		tmpl.Execute(w, p)
+		return
+	}
+
+	art, err := generator.GenArt(text, banner)
+	if err != nil {
+		p.Error = "Failed to generate ASCII art: " + err.Error()
+		tmpl.Execute(w, p)
+		return
+	}
+
+	// Populate the Page struct with form data and generated art
+	p.Text = text
+	p.Banner = banner
+	p.Result = art
+
+	w.WriteHeader(http.StatusOK) // 200
+	tmpl.Execute(w, p)
 }
