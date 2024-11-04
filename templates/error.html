@@ -1,0 +1,27 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>error</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header class="top-bar">
+        <a href="/">ascii-art-web</a>
+    </header>
+    <div class="container">
+        <div class="errTitle">
+            <pre>{{.Title}}</pre>
+        </div>
+
+        <div class="errMessage">
+            <pre>{{.Msg}}</pre>
+        </div>
+    </div>
+    <footer class="footer">
+        <p>Created by Allen Lee (ylee) & Othemane Afiali (oafiali)</p>
+    </footer>
+</body>
+</html>

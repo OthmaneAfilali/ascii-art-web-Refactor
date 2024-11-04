@@ -1,63 +1,86 @@
-/* static/styles.css */
+html, body{
+    height:100%;
+    min-width: 800px;
+    background-color: #333;
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0px;
+    display:flex;
+    flex-direction: column;
+}
+.top-bar{
+    background-color: #222;
+    padding: 10px 20px;
+}
+.top-bar a {
+    color: #ee0;
+    text-decoration: none;
+}
+.top-bar a:hover{
+    color:#f80;
+}
 .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+    max-width:90%;
+    min-width: 60%;
+    margin: auto;
+    color:#ee0;
+    flex: 1;
 }
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
+.title {
+    text-align: center;
+    font-size: 12px;
     font-weight: bold;
 }
-
+.errTitle{
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color:#f00;
+}
 textarea {
     width: 100%;
-    min-height: 100px;
-    padding: 10px;
+    height: 100px;
+    background-color: #222;
+    color: #0f0;
+    border: 1px solid #363;
+    resize: none;
+}
+textarea::placeholder{
+    color: #363
+}
+textarea:focus{
+    outline: none;
+    border-color: #0f0;
+}
+.radio-group{
+    margin: 10px;
+}
+.submit{
+   background-color: #070;
+   border-color: #080;
+   color: #ee5;
+   padding: 5px 10px;
+   font-size: 16px;
+}
+.message {
+    margin-top: 10px;
     margin-bottom: 10px;
+    min-height: 200px;
+    font-size: 12px;
+    background-color: #222;
+    color: #0f0;
+    overflow: auto;
 }
-
-select {
-    width: 100%;
-    padding: 8px;
+.errMessage {
+    margin-top: 10px;
     margin-bottom: 10px;
+    min-height: 200px;
+    font-size: 27px;
+    background-color: #222;
+    color: #f00;
 }
-
-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-.error {
-    background-color: #ffebee;
-    color: #c62828;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-}
-
-.result {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-}
-
-pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-family: monospace;
+.footer {
+    background-color: #222;
+    color: #ee0;
+    font-size: 10px;
+    padding: 5px 10px;
 }

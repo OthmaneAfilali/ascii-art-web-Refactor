@@ -35,10 +35,11 @@ func GenArt(txt, styleNm string) (string, error) {
 func checkInput(txt string) ([]string, error) {
 	txt = strings.ReplaceAll(txt, "\r", "")
 	txtLns := strings.Split(txt, "\n")
+	isEmpty := true
 
 	for _, txtLn := range txtLns {
 		if txtLn != "" {
-			return txtLns, nil
+			isEmpty = false
 		}
 		for _, rn := range txtLn {
 			if rn < 32 || rn > 127 {
@@ -46,7 +47,10 @@ func checkInput(txt string) ([]string, error) {
 			}
 		}
 	}
-	return nil, fmt.Errorf("no character to convert")
+	if isEmpty {
+		return nil, fmt.Errorf("no character to convert")
+	}
+	return txtLns, nil
 }
 
 // getStyle read <styleName>.txt and store the ascii art runes in a map[rune][]string.

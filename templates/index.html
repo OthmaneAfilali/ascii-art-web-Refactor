@@ -4,48 +4,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Art Generator</title>
+    <title>error</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+    <header class="top-bar">
+        <a href="/">ascii-art-web</a>
+    </header>
+
     <div class="container">
-        <h1>ASCII Art Generator</h1>
-        
-        {{if .Error}}
-        <div class="error">
-            {{.Error}}
+        <div class="title">
+            <pre>{{.P.Title}}</pre>
         </div>
-        {{end}}
 
         <form action="ascii-art" method="POST">
-            <div class="form-group">
-                <label for="text">Enter Text:</label>
+            <div>
                 <textarea 
                     name="text" 
                     id="text" 
                     required
-                    placeholder="Enter text to convert..."
+                    placeholder="Enter text here"
                 >{{.Text}}</textarea>
             </div>
 
-            <div class="form-group">
-                <label for="banner">Select Banner Style:</label>
-                <select name="banner" id="banner" required>
-                    <option value="standard" {{if eq .Banner "standard"}}selected{{end}}>Standard</option>
-                    <option value="shadow" {{if eq .Banner "shadow"}}selected{{end}}>Shadow</option>
-                    <option value="thinkertoy" {{if eq .Banner "thinkertoy"}}selected{{end}}>Thinkertoy</option>
-                </select>
+            <div class="radio-group">
+                <label>Select Banner Style:</label>
+                    <input 
+                        type="radio"
+                        id="standard"
+                        name="banner"
+                        value="standard"
+                        required
+                        {{if eq .Banner "standard"}} checked {{end}}>
+                    <label for="standard">standard</label>
+
+                    <input 
+                        type="radio"
+                        id="shadow"
+                        name="banner"
+                        value="shadow"
+                        required
+                        {{if eq .Banner "shadow"}} checked {{end}}>
+                    <label for="shadow">shadow</label>
+
+                    <input 
+                        type="radio"
+                        id="thinkertoy"
+                        name="banner"
+                        value="thinkertoy"
+                        required
+                        {{if eq .Banner "thinkertoy"}} checked {{end}}>
+                    <label for="thinkertoy">thinkertoy</label>
             </div>
 
-            <button type="submit">Generate ASCII Art</button>
+            <button type="submit" class="submit">Generate ASCII Art</button>
         </form>
 
-        {{if .Result}}
-        <div class="result">
-            <h2>Result:</h2>
-            <pre>{{.Result}}</pre>
+        <div>
+            <pre class="message">{{.P.Msg}}</pre>
         </div>
-        {{end}}
     </div>
+
+    <footer class="footer">
+        <p>Created by Allen Lee (ylee) & Othemane Afiali (oafiali)</p>
+    </footer>
 </body>
 </html>

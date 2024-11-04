@@ -19,65 +19,77 @@ When the user clicks on the `Generate ASCII Art` button, a POST request is sent 
 The user defined parameters will be grab and passed to the GenArt() function to generate ASCII art.
 
 ```mermaid
-flowchart
-    start{"go run main.go
-    http.ListenAndServe(8080)"}
-    invalidURL["404 not found"]
+flowchart TB
+    subgraph server [SERVER]
+        start{"go run main.go
+        checkRequired()
+        define static file server route
+        http.ListenAndServe(8080)"}
+        homeFn("homeHandler()")
+        rForm("getFormInputs()")
+        genArt("GenArt()")
+        template("getTemplate()")
+        handlePost("handlePost()")
+    end
 
-    homeFn("homeHandler()")
-    inValidRq["405 method not allowed"]
-    template("template.ParseFile
-    (index.html)")
-    tempErr["404 not found "]
+    subgraph client [CLIENT Browser Application]
+        invalidURL["404 not found"]
+        inValidRq["405 method not allowed"]
+        tempErr["404 not found "]
+        rFormErr["400 bad request"]
+        missing["500 internal server error"]
+        index(("display index.html
+        200 OK"))
+        pressBtn((Press 'Generate ASCII Art'))
+    end
 
-    index(("display index.html
-    200 OK"))
-    pressBtn((Press 'Generate ASCII Art'))
-
-    rForm("r.ParseForm()")
-    rFormErr["400 bad request"]
-    genArt("GenArt()")
-
-    start--Invalid URL-->invalidURL;
+    server<-->|HTTP Request and Response| client;
+   
     start--
     Valid URL
     localhost:8080/ || 
     localhost:8080/ascii-art
     -->homeFn;
-
-    homeFn--Invalid Request-->inValidRq;
-    homeFn--GET request-->template;
-    homeFn--POST request-->rForm;
-    template--No file or permission-->tempErr;
-    template-->index;
+    start--Invalid URL
+    redirect to /error-->invalidURL;
     
+    homeFn--GET request-->
+    template-->
+    index--User input-->
+    pressBtn;
+    
+    homeFn--POST request-->handlePost-->
+    rForm-->
+    genArt--Art/Error generaterd-->
+    template;
+
     pressBtn--
     Post request to
     localHost:8080/ascii-art
     -->homeFn;
     
-    rForm-->genArt;
-    rForm--Uable to grab data-->rFormErr;
-    genArt--Art generaterd-->template;
-    genArt--Error generated-->template;
-
-    subgraph webpage
-    index-->pressBtn;
-    end
+    homeFn--Invalid Request
+    redirect to /error-->inValidRq;
+    rForm--Uable to grab data
+    redirect to /error-->rFormErr;
+    genArt--Missing files
+    redirect to /error-->missing;
+    template--No file or permission
+    redirect to /error-->tempErr;
 ```
 ## Requirement
-- start and run a server
-- web GUI for ascii-art
-- Must allow the use of the 3 banners
-- Implement HTTP endpoints:
+- start and run a server (DONE)
+- web GUI for ascii-art (DONE)
+- Must allow the use of the 3 banners (DONE)
+- Implement HTTP endpoints: (DONE)
     - GET "/": go templates
     - POST "/ascii-art": use form to make post request
-- Display result of POST in home page.
-- main page must have:
+- Display result of POST in home page. (DONE)
+- main page must have: (DONE)
     - text input
     - radio buttons
     - button
-- HTTP status code
+- HTTP status code - make redirecting work properly
     - 200 OK
     - 404 Not found
     - 405 Bad request
@@ -89,15 +101,23 @@ flowchart
     - implementation details
 
 ## Tasks
-- Refactor homeHandler()?
-- Implement more ASCII art functionality?
-    - ANSI color won't work
+- main.go
+    - P1 - redirecting not working
+    - P2 - sanitize input. get rid of starting and ending newlines
+    - P3 - reorganize code for imrpove readability
+- P4 - Improve README.md
+    - descriptons
+    - Authors
+    - usage
+    - implementation details
 - Design index.html and css
-    - css not working
+    - more functionality?
 
 - Learn HTTP protocol, handlers and pattern
-    - focsu on HTTP status code 
+    - focus on HTTP status code 
 - Learn server and client
+- Implement more ASCII art functionality?
+    - ANSI color won't work
 
 ## Optionals
 - export output
