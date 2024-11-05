@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type Page struct {
@@ -30,8 +32,6 @@ func main() {
 
 	checkRequired(reqFiles)
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-
-	http.HandleFunc("/error", errorHandler)
 	http.HandleFunc("/", homeHandler)
 
 	log.Println("Listening and serving on :8080...")
@@ -42,12 +42,12 @@ func main() {
 func homeHandler(w http.ResponseWriter, req *http.Request) {
 	printRequest(req)
 	if req.URL.Path != "/" && req.URL.Path != "/ascii-art" {
-		http.Redirect(w, req, "/error?code=404", http.StatusNotFound)
+		errorHandler(w, http.StatusNotFound)
 		return
 	}
 	page := &AsciiPg{Banner: "standard"}
 	if !isFileThere("./assets/" + page.Banner + ".txt") {
-		http.Redirect(w, req, "/error?code=500", http.StatusInternalServerError)
+		errorHandler(w, http.StatusInternalServerError)
 		return
 	}
 	page.P.Title, _ = generator.GenArt("ASCII-ART", "standard")
@@ -55,7 +55,7 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 
 	switch req.Method {
 	case "GET":
-		getTemplate(w, req, "index", page)
+		getTemplate(w, "index", page)
 	case "POST":
 		handlePost(w, req, page)
 	default:
@@ -65,10 +65,10 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 
 // getTemplate() grabs the template and
 // write the response using the page info given
-func getTemplate(w http.ResponseWriter, req *http.Request, tmplNm string, page any) {
+func getTemplate(w http.ResponseWriter, tmplNm string, page any) {
 	tmpl, err := template.ParseFiles("templates/" + tmplNm + ".html")
 	if err != nil {
-		http.Redirect(w, req, "/error?code=404", http.StatusNotFound)
+		errorHandler(w, http.StatusNotFound)
 		return
 	}
 	w.WriteHeader(http.StatusOK) // 200
@@ -78,12 +78,14 @@ func getTemplate(w http.ResponseWriter, req *http.Request, tmplNm string, page a
 // handlePost() handles
 func handlePost(w http.ResponseWriter, req *http.Request, page *AsciiPg) {
 	text, banner, formErr := getFormInputs(req)
+	text = strings.ReplaceAll(text, "\r", "")
+	text = strings.Trim(text, "\n")
 	if formErr != "" {
-		http.Redirect(w, req, "/error?code=400", http.StatusBadRequest)
+		errorHandler(w, http.StatusBadRequest)
 		return
 	}
 	if !isFileThere("./assets/" + banner + ".txt") {
-		http.Redirect(w, req, "/error?code=500", http.StatusInternalServerError)
+		errorHandler(w, http.StatusInternalServerError)
 		return
 	}
 	if art, err := generator.GenArt(text, banner); err != nil {
@@ -95,7 +97,7 @@ func handlePost(w http.ResponseWriter, req *http.Request, page *AsciiPg) {
 	page.Text = text
 	page.Banner = banner
 getTemplateLn:
-	getTemplate(w, req, "index", page)
+	getTemplate(w, "index", page)
 }
 
 // getFormInputs() gets the text and banner input from the form in the POST request
@@ -114,10 +116,10 @@ func getFormInputs(req *http.Request) (string, string, string) {
 
 // errorHandler() generate custom error page responses.
 // If error.html can't be parse, default to simple error page
-func errorHandler(w http.ResponseWriter, req *http.Request) {
-	statusCode := req.URL.Query().Get("code")
-	page := &Page{Title: statusCode}
-	switch statusCode {
+func errorHandler(w http.ResponseWriter, statusCode int) {
+	page := &Page{Title: strconv.Itoa(statusCode)}
+	w.WriteHeader(statusCode)
+	switch page.Title {
 	case "400":
 		page.Msg = "400 bad request"
 	case "404":
