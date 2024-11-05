@@ -59,7 +59,7 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 	case "POST":
 		handlePost(w, req, page)
 	default:
-		http.Redirect(w, req, "/error?code=405", http.StatusMethodNotAllowed)
+		errorHandler(w, http.StatusMethodNotAllowed)
 	}
 }
 
@@ -133,7 +133,7 @@ func errorHandler(w http.ResponseWriter, statusCode int) {
 	}
 	tmpl, err := template.ParseFiles("templates/error.html")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound) // 404
+		http.Error(w, "404 page not found\n"+err.Error(), http.StatusNotFound) // 404
 		return
 	}
 	page.Title, _ = generator.GenArt(page.Title, "standard")
