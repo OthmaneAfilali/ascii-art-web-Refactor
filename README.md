@@ -11,13 +11,14 @@ By Allen Lee (ylee) & Othemane Afiali (oafiali)
 ```
 
 # ascii-art-web
-A web version of the ascii-art with GUI for easier usability.
+A web version of the ascii-art with simple GUI for easy usability.
 The website is hosted on the local machine using port 8080.
 Only `localhost:8080/` and `localhost:8080/ascii-art`are valid URL.
 
 ## Usage
-Download the project using `git clone https://01.gritlab.ax/git/ylee/ascii-art-web.git`. Navigate to the project folder in the terminal and start the server by entering `go run main.go`. Make sure golang is installed on the machine.
-Key in a valid URL, `localhost:8080/` or `localhost:8080/ascii-art`. And you will see the home page (refer to image below). You will see:
+Prerequisites: Golang, git and a browser application.
+
+Download the project using `git clone https://01.gritlab.ax/git/ylee/ascii-art-web.git`. Navigate to the project folder in the terminal and start the server by entering `go run main.go`. Key in a valid URL, `localhost:8080/` or `localhost:8080/ascii-art`. And you will see the home page (refer to image below). You will see:
 - a top bar with a link to the `homepage` and `about`
 - an ascii art banner
 - a short description on how to use the site
@@ -30,9 +31,9 @@ Key in a valid URL, `localhost:8080/` or `localhost:8080/ascii-art`. And you wil
 
 Simply enter the your text, select the banner style and click the button to generate the ASCII art banner.
 Leading and trailing newlines will be remove (user can enter the newlines themselves).
-Only ASCII character 32 to 127 and newline is considered acceptable input.
+Only ASCII characters (from 32 to 127) and newline is considered acceptable input.
 
-If non-printable ASCII characters are given, an error message will be given.
+Non-printable ASCII characters will result in an error.
 
 
 ## Implementation
@@ -51,20 +52,24 @@ flowchart TB
     end
 
     subgraph server [SERVER]
-        start{"go run main.go"}
-        subgraph main
-            checkReq("checkRequired()")
-            static("define static FileServer route")
+    start{"go run main.go"}
+        subgraph main ["main()"]
+            checkReq("checkRequired()
+            If missing, log.Fatal")
+            static("define static 
+            FileServer route")
             register("http.HandleFunc(/, homeHandler)")
             listener("http.ListenAndServe(8080)")
         end
         homeFn("homeHandler()")
-        rForm("getFormInputs()")
-        genArt("GenArt()")
         template("getTemplate()")
-        handlePost("handlePost()")
+        subgraph handlePost ["handlePost()"]
+            rForm("getFormInputs()")
+            clean("clean inputs for genArt()")
+            genArt("GenArt()")
+        end
 
-        start --> checkReq--> static -->register--> listener--> homeFn;
+        checkReq--> static -->register--> listener--> homeFn;
         homeFn-->
         |Valid GET request|template-->
         index--User input-->
@@ -72,10 +77,11 @@ flowchart TB
         |Post request to
         localHost:8080/ascii-art| listener;
         homeFn-->
-        |POST request|handlePost-->
-        rForm-->genArt-->|art/ error generated|template;
+        |POST request|handlePost;
+        rForm-->clean-->genArt-->|art/ error generated|template;
     end
-
+    
+    start --> main;
     homeFn--Invalid URL
     redirect to /error-->invalidURL;
     homeFn--Invalid Request-->inValidRq;
@@ -83,14 +89,14 @@ flowchart TB
     genArt--Missing files-->missing;
 ```
 
-1. In main, checkRequired() checks if all required files are in the project folder. 
-2. A static server route is define to server static files effectively to clients.
-3. The homeHandler() function is registered to the pattern `\`, handling incoming requests to the root (in this situation, it is effectively handling all incoming requests).
-4. http.ListenAndServe(":8080", nil) starts listening on local port 8080 and use the [DefaultServeMux] to handle requests.
-5. The client (browser application) can send HTTP requests to the server.  If it is valid, the server will reply with a HTTP response and the 200 status code. Else, an error page with 404 status code.
-5. If it is a valid `GET` request, getTemplate() is called. getTemplate() uses the html.Template.ParseFiles() and Execute() to generate the response file (a html).
-6. The response (home page) is display by the client and the user can input the desired parameters and hit the `Generate ASCII Art` button. A POST request is sent to the server when the button is clicked.
-7. If it is a `POST` request, handlePost() is called. In handlePost(),
+1. In main, checkRequired() function checks if all necessary files (such as templates, static resources, etc.) exist in the project folder.
+2. `/static` is defined as static server route to server static files effectively to clients.
+3. The homeHandler() function is registered to the pattern `/`, handling incoming requests to the root (in this situation, it is effectively handling all incoming requests other than `/static`).
+4. http.ListenAndServe("8080") starts listening on local port 8080 and use the [DefaultServeMux] to handle requests.
+5. The client (browser application) can send HTTP requests to the server.  If it is valid, the server will reply with a HTTP response (HTML page) and the 200 status code. Else, an error page with 404 status code.
+5. If it is a valid `GET` request, getTemplate() is called. getTemplate() uses the html.Template.ParseFiles() and Execute() to generate the response file (HTML).
+6. The response (home page) is display by the client and the user can input the desired parameters. When the `Generate ASCII Art` button is hit, a POST request is sent to the server with the user input.
+7. If it is a `POST` request, handlePost() is called and in it:
     - we grab the user inputs using getFormInputs() (http.Request.ParseForm())
     - we generate the output with GenArt()
     - and getTemplate() to generate the response with the output
@@ -102,14 +108,11 @@ Note:
 ## Tasks
 - main.go
     - reorganize code for imrpove readability (Ozzy)
-- Improve README.md (Allen)
-    - descriptons
-    - Authors 
-    - usage
-    - implementation details
+
 - Design index.html and css
     - more functionality?
     - added icon
+- clean up css(?)
 
 - Learn HTTP protocol, handlers and pattern
     - focus on HTTP status code 
