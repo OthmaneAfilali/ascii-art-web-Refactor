@@ -27,7 +27,7 @@ Download the project using `git clone https://01.gritlab.ax/git/ylee/ascii-art-w
 - a button to generate the ascii art. 
 - result output
 
-![alt text](assets/images/image.png)
+![alt text](/assets/static/image.png)
 
 Simply enter the your text, select the banner style and click the button to generate the ASCII art banner.
 Leading and trailing newlines will be remove (user can enter the newlines themselves).

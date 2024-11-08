@@ -22,20 +22,33 @@ type AsciiPg struct {
 
 func main() {
 	reqFiles := []string{
-		"./assets/shadow.txt",
-		"./assets/standard.txt",
-		"./assets/thinkertoy.txt",
-		"./static/styles.css",
+		"./assets/styles/shadow.txt",
+		"./assets/styles/standard.txt",
+		"./assets/styles/thinkertoy.txt",
+		"./assets/static/styles.css",
 		"./templates/index.html",
 		"./templates/error.html",
+		"./templates/about.html",
 	}
 
 	checkRequired(reqFiles)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("assets/static/"))))
 	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/about", aboutHandler) // Register the new handler
 
 	log.Println("Listening and serving on :8080...")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+// aboutHandler handles GET requests to "/about"
+func aboutHandler(w http.ResponseWriter, req *http.Request) {
+	printRequest(req)
+	if req.Method != "GET" {
+		errorHandler(w, http.StatusMethodNotAllowed)
+		return
+	}
+	page := &Page{Title: "About"}
+	getTemplate(w, "about", page)
 }
 
 // homeHandler() handlers GET and POST request to "/" and "/ascii-art"
@@ -46,7 +59,7 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	page := &AsciiPg{Banner: "standard"}
-	if !isFileThere("./assets/" + page.Banner + ".txt") {
+	if !isFileThere("./assets/styles/" + page.Banner + ".txt") {
 		errorHandler(w, http.StatusInternalServerError)
 		return
 	}
@@ -84,7 +97,7 @@ func handlePost(w http.ResponseWriter, req *http.Request, page *AsciiPg) {
 		errorHandler(w, http.StatusBadRequest)
 		return
 	}
-	if !isFileThere("./assets/" + banner + ".txt") {
+	if !isFileThere("./assets/styles/" + banner + ".txt") {
 		errorHandler(w, http.StatusInternalServerError)
 		return
 	}
